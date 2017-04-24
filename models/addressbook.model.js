@@ -1,13 +1,7 @@
 const mongoose = require("mongoose");
 
 
-module.exports = mongoose.model("addressBook", {
-    id: {
-        type: Number,
-        default: null,
-        required: true,
-        unique: true    
-    },
+module.exports = mongoose.model("Contact", {
     name: {
         type: String,
         default: null,
@@ -16,17 +10,17 @@ module.exports = mongoose.model("addressBook", {
     phoneNumber: {
         type: Number,
         default: null,
-        required: true,
+        required: false,
     },
     email: {
         type: String,
         default: null,
-        required: true,
+        required: false,
     },
     address: {
         type: String,
         default: null,
-        required: true,
+        required: false,
     }
 });
 

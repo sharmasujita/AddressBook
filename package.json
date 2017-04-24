@@ -10,13 +10,16 @@
   },
   "scripts": {
     "lint": "semistandard --fix \"**/*.js\"",
-    "start": "functions deploy yourAction --trigger-http",
+    "start": "node index.js",
     "deploy": "gcloud beta functions deploy yourAction --trigger-http --stage-bucket <storage_bucket_name>"
   },
   "dependencies": {
     "actions-on-google": "^1.0.0",
     "q": "*",
-    "mongoose": "*"
+    "mongoose": "*",
+    "body-parser": "*",
+    "express": "*",
+    "request": "*"
   },
   "devDependencies": {
     "semistandard": "^9.1.0"

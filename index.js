@@ -1,36 +1,73 @@
-// Copyright 2016, Google, Inc.
-// Licensed under the Apache License, Version 2.0 (the 'License');
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//    http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an 'AS IS' BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
-'use strict';
+"use strict";
 
 process.env.DEBUG = 'actions-on-google:*';
-const Assistant = require('actions-on-google').ApiAiAssistant;
+const express = require("express"),
+    bodyParser = require("body-parser"),
+    Assistant = require('actions-on-google').ApiAiAssistant,
+    addressBookService = require('./services/addressbook.service')
 
-// [START YourAction]
-exports.yourAction = (req, res) => {
-  const assistant = new Assistant({request: req, response: res});
-  console.log('Request headers: ' + JSON.stringify(req.headers));
-  console.log('Request body: ' + JSON.stringify(req.body));
+let app = express();
+app.use(bodyParser.urlencoded({ extended: true}));
+app.use(bodyParser.json({ type: 'application/json'}));
 
-  // Fulfill action business logic
-  function responseHandler (assistant) {
-    // Complete your fulfillment logic and send a response
-    assistant.tell('Hello, World!');
-  }
+app.post('/', function(req, res) {
+    const assistant = new Assistant({request: req, response: res});
 
-  const actionMap = new Map();
-  actionMap.set('<API.AI_action_name>', responseHandler);
+    function responseHandler(assistant){
 
-  assistant.handleRequest(actionMap);
+        let intent = req.body.result.metadata.intentName;
+        let parameter = req.body.result.parameters;
+        let name = req.body.result.parameters.Name;
+        let address = req.body.result.parameters.Address;
+        let phone = req.body.result.parameters.PhoneNumber;
+        let email = req.body.result.parameters.Email;
+
+//switch cases for Api.ai Intents
+        switch(intent){
+            case 'Add Contact':
+                addressBookService.AddContact(name, address, phone , email)
+                    .then((res) => {
+                        assistant.tell('I have added ' + name + ' to your contact list');
+                    });
+            case 'Update Contact':
+                console.log(".......UPDATE CONTACT.....");
+                addressBookService.UpdateContact(name, address, phone, email)
+                    .then((res) => {
+                        assistant.tell('I have Updated information for  ' + name + ' in your contact list');
+                    });
+            case 'Delete Contact':
+                console.log(".......DELETE CONTACT.....");
+                addressBookService.DeleteContact()
+                    .then((res) => {
+                        assistant.tell(name + ' is removed from your contact list');
+                    });
+            case 'Get All Contacts':
+                console.log('Get All Contacts')
+                addressBookService.GetAllContacts()
+                    .then((res) => {
+                        assistant.tell("Here is the list of all of your contacts");
+                    });
+            case 'Get Contact By Name':
+                console.log("GET CONTACT BY NAME");
+                addressBookService.GetContactByName(name)
+                    .then((res) => {
+                        assistant.tell("Here is the contact information of" + name);
+                    })
+                
+        }
+    
 };
-// [END YourAction]
+
+    assistant.handleRequest(responseHandler);
+
+});
+
+let server = app.listen(process.env.PORT || 8080, () => {
+    let port = server.address().port;
+    console.log('Magic Happens on port %s', port);
+});
+
+module.exports = app;
+
+    
+
