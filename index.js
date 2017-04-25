@@ -45,15 +45,40 @@ app.post('/', function(req, res) {
                 console.log('Get All Contacts')
                 addressBookService.GetAllContacts()
                     .then((res) => {
-                        assistant.tell("Here is the list of all of your contacts");
+                        let response = "Here is the list of all of your contacts";
+                        res.foreach(function(contact){
+                            console.log(contact);
+                            assistant.tell(response + " " + contact);
+                        })
+
                     });
             case 'Get Contact By Name':
                 console.log("GET CONTACT BY NAME");
                 addressBookService.GetContactByName(name)
                     .then((res) => {
-                        assistant.tell("Here is the contact information of" + name);
-                    })
-                
+                        let response = "Here is the contact information of " + name;
+
+                        if(res.address)
+                        {
+                            response += "Their address is " + res.address;
+                        }
+                        if(res.email)
+                        {
+                            response += "Their email is " + res.email;
+                        }
+                        if(res.phoneNumber != null)
+                        {
+                            response += "and their PhoneNumber is " + res.phoneNumber;
+                        }
+                        
+                        assistant.tell(response);
+                    });
+
+            case "Get Contact Count":
+                addressBookService.GetContactCount()
+                    .then((res) => {
+                        assistant.tell("You have" + " " + res + " contacts in total." );
+                    });
         }
     
 };

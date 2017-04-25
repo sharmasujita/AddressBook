@@ -2,6 +2,9 @@
     "env" : {
         "local": {
             "contacts": "mongodb://localhost/Contacts"
+        },
+        "prod": {
+            "contacts": "mongodb://@ds113871.mlab.com:13871/sharma-demo-test"
         }
     }
 }

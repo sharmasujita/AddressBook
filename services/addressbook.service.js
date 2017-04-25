@@ -2,7 +2,7 @@ const mongoose = require("mongoose"),
     q = require('q'),
     addressBook = require('../models/addressbook.model'),
     config = require('../config.json'),
-    uri = config.env.local.contacts;
+    uri = config.env.prod.contacts;
 
 // mongo connection
 mongoose.connect(uri, function(err, res) {
@@ -18,7 +18,8 @@ module.exports = {
     GetAllContacts : GetAllContacts,
     GetContactByName: GetContactByName,
     UpdateContact: UpdateContact,
-    DeleteContact: DeleteContact
+    DeleteContact: DeleteContact,
+    GetContactCount : GetContactCount
 };
 
 //Add AddContact
@@ -68,7 +69,7 @@ function GetAllContacts() {
 function GetContactByName(name) {
 
     let deferred = q.defer();
-    addressBook.find({'name' : name}, (err, contact) =>{
+    addressBook.findOne({'name' : name}, (err, contact) =>{
         if(err) {
             console.error(err);
             deferred.reject(err);
@@ -136,3 +137,19 @@ function DeleteContact() {
     return deferred.promise;
 };
 
+//Get Contact Count
+
+function GetContactCount() {
+    let deferred = q.defer();
+
+    addressBook.find({}, (err, contact) => {
+        if(err) {
+            console.error(err);
+            deferred.reject(err);
+        }
+        if(contact) {
+            console.log(contact.length);
+            deferred.resolve(contact.length);
+        }
+    });
+}
